@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.rmyhform.dao.TbRmyhFileDao">
+    
+	<sql id="tbRmyhFileColumns">
+		a.id AS "id",
+		a.khform_id AS "tbRmyhKhformInfo.id",
+		a.khform_id AS  "khformId",
+		a.office_id AS "office.id",
+		a.file_ulr AS "fileUlr",
+		a.userName AS "userName",
+		a.status   AS  "status",
+		a.all_score AS "allScore",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.flag_id AS "flagId",
+		a.formName AS  "formName",
+		o3.name AS "office.name",
+		kh.name AS "tbRmyhKhformInfo.name",
+		kh.all_score AS	 "tbRmyhKhformInfo.allScore",
+		kh.kh_start_time AS "tbRmyhKhformInfo.khStartTime",
+		kh.kh_end_time AS "tbRmyhKhformInfo.khEndTime"
+	</sql>
+	
+	<sql id="tbRmyhFileJoins">
+		LEFT JOIN sys_office o3 ON o3.id = a.office_id
+	</sql>
+    <sql id="tbRmyhFileKhJoins">
+		LEFT JOIN tb_rmyh_khform_info_xf kh ON kh.id = a.khform_id and kh.flag_id = a.flag_id
+	</sql> 
+	
+	<select id="get" resultType="TbRmyhFile">
+		SELECT 
+			<include refid="tbRmyhFileColumns"/>
+		FROM tb_rmyh_file a
+		<include refid="tbRmyhFileJoins"/>
+		<include refid="tbRmyhFileKhJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TbRmyhFile">
+		SELECT 
+			<include refid="tbRmyhFileColumns"/>
+		FROM tb_rmyh_file a
+		<include refid="tbRmyhFileJoins"/>
+		<include refid="tbRmyhFileKhJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="officeId != null and officeId != ''">
+				AND a.office_id = #{officeId}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="fileUlr != null and fileUlr != ''">
+				AND a.file_ulr = #{fileUlr}
+			</if>										
+			<if test="formName != null and formName != ''">
+				AND a.formName = #{formName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+		<select id="findLisOne1" resultType="TbRmyhFile">
+		SELECT 
+			<include refid="tbRmyhFileColumns"/>
+		FROM tb_rmyh_file a
+		<include refid="tbRmyhFileJoins"/>
+		<include refid="tbRmyhFileKhJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+				AND (a.status != '1'  and a.status != '5' )
+ 		
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findLisOne" resultType="TbRmyhFile">
+		SELECT 
+			<include refid="tbRmyhFileColumns"/>
+		FROM tb_rmyh_file a
+		<include refid="tbRmyhFileJoins"/>
+		<include refid="tbRmyhFileKhJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="officeId != null and officeId != ''">
+				AND a.office_id = #{officeId}
+			</if>
+			<if test="fileUlr != null and fileUlr != '' and fileUlr == 2" >
+				AND  (a.file_ulr ='2'  or a.file_ulr = '12' or a.file_ulr = '11') and a.status != '5'
+			</if>	
+			<if test="fileUlr != null and fileUlr != '' and fileUlr == 11" >
+				AND  a.file_ulr ='11' and a.status != '5'
+			</if>									
+			<if test="formName != null and formName != ''">
+				AND a.formName = #{formName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<select id="findListSH" resultType="TbRmyhFile">
+		SELECT 
+			<include refid="tbRmyhFileColumns"/>
+		FROM tb_rmyh_file a
+		<include refid="tbRmyhFileJoins"/>
+		<include refid="tbRmyhFileKhJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="officeId != null and officeId != ''">
+				AND a.office_id = #{officeId}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status >= #{status}
+			</if>
+			<if test="fileUlr != null and fileUlr != ''">
+				AND a.file_ulr = #{fileUlr}
+			</if>										
+			<if test="formName != null and formName != ''">
+				AND a.formName = #{formName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbRmyhFile">
+		SELECT 
+			<include refid="tbRmyhFileColumns"/>
+		FROM tb_rmyh_file a
+		<include refid="tbRmyhFileJoins"/>
+		<include refid="tbRmyhFileKhJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<select id="test" resultType="TbRmyhFile">
+		SELECT 
+			<include refid="tbRmyhFileColumns"/>
+		FROM tb_rmyh_file a
+		<include refid="tbRmyhFileJoins"/>
+		<include refid="tbRmyhFileKhJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_rmyh_file(
+			id,
+			khform_id,
+			office_id,
+			file_ulr,
+			userName,
+			status,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			all_score,
+			formName,
+			flag_id,
+			del_flag
+		) VALUES (	
+			#{id},
+			#{khformId},
+			#{office.id},
+			#{fileUlr},
+			#{userName},
+			#{status},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{allScore},
+			#{formName},
+			#{flagId},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_rmyh_file SET 	
+			khform_id = #{khformId},
+			office_id = #{office.id},
+			file_ulr = #{fileUlr},
+			userName = #{userName},
+			status = #{status},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			formName = #{formName},
+			all_score=#{allScore}
+		WHERE id = #{id}
+	</update>
+			
+	<update id="delete">
+		delete from tb_rmyh_file 
+		WHERE khform_id = #{khformId} AND office_id= #{officeId}
+		
+	</update>
+	
+</mapper>

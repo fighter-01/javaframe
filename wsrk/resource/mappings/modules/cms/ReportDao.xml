@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.cms.dao.ReportDao">
+    
+	<sql id="cmsReportDaoColumns">
+		a.id AS "id",
+		a.a_id AS "a_id",
+		a.title AS "title",
+		a.report_time AS "report_time",
+		a.report_type AS "report_type",
+	    a.report_conetent AS "report_conetent",
+	    a.report_frequency AS "report_frequency",
+	    a.report_source AS "report_source",
+	    a.report_id AS "report_id",
+	    a.proof AS "proof",
+	    a.reply AS "reply",
+	    a.auditing AS "auditing",
+	    a.result AS "result",
+	    a.choice AS "choice"
+	</sql>
+	
+	<sql id="cmsReportDaoJoins">
+	</sql>
+    
+	<select id="get" resultType="Report">
+		SELECT 
+			<include refid="cmsReportDaoColumns"/>
+		FROM message_report a
+		<include refid="cmsReportDaoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Report">
+		SELECT 
+			<include refid="cmsReportDaoColumns"/>
+		FROM message_report a
+		<include refid="cmsReportDaoJoins"/>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.report_time DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Report">
+		SELECT 
+			<include refid="cmsReportDaoColumns"/>
+		FROM message_report a
+		<include refid="cmsReportDaoJoins"/>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.report_time DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO message_report(
+			id,
+			a_id,
+			title,
+			report_time,
+			report_type,
+	    	report_conetent,
+	    	report_frequency,
+	    	report_source,
+	    	report_id,
+	    	proof,
+	    	reply,
+	    	auditing,
+	    	result,
+	    	choice
+		) VALUES (
+			_nextval('pushid'),
+			#{a_id},
+			#{title},
+			#{report_time},
+			#{report_type},
+	    	#{report_conetent},
+	    	#{report_frequency},
+	    	#{report_source},
+	    	#{report_id},
+	    	#{proof},
+	    	#{reply},
+	    	#{auditing},
+	    	#{result},
+	    	#{choice}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE message_report SET 	
+			name = #{name},
+			title = #{title},
+			report_time = #{report_time},
+	    	report_conetent = #{report_conetent},
+	    	report_frequency = #{report_frequency},
+	    	report_source = #{report_source},
+	    	report_id = #{report_id},
+	    	proof = #{proof},
+	    	reply = #{reply},
+	    	auditing = #{auditing},
+	    	result = #{result},
+	    	choice = #{choice}
+		WHERE a_id = #{a_id}
+	</update>
+	
+	<update id="delete">
+		UPDATE message_report SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

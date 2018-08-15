@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.accounts.dao.TbEmployeeDao">
+    
+	<sql id="tbEmployeeColumns">
+		a.id AS "id",
+		a.company_id AS "company.id",
+    	a.office_id AS "office.id",
+		a.sex AS "sex",
+		a.name AS "name",
+		a.age AS "age",
+		a.zw AS "zw",
+		a.zzmm AS "zzmm",
+		a.whcd AS "whcd",
+		a.drsj AS "drsj",
+		a.create_name AS "creatName",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag" ,
+		c.name AS "company.name",
+    	c.parent_id AS "company.parent.id",
+    	c.parent_ids AS "company.parentIds",
+    	ca.id AS "company.area.id",
+    	ca.name AS "company.area.name",
+    	ca.parent_id AS "company.area.parent.id",
+    	ca.parent_ids AS "company.area.parentIds",
+    	o.name AS "office.name",
+    	o.parent_id AS "office.parent.id",
+    	o.parent_ids AS "office.parentIds",
+    	oa.id AS "office.area.id",
+    	oa.name AS "office.area.name",
+    	oa.parent_id AS "office.area.parent.id",
+    	oa.parent_ids AS "office.area.parentIds",
+    	cu.id AS "company.primaryPerson.id",
+    	cu.name AS "company.primaryPerson.name",
+    	cu2.id AS "company.deputyPerson.id",
+    	cu2.name AS "company.deputyPerson.name",
+    	ou.id AS "office.primaryPerson.id",
+    	ou.name AS "office.primaryPerson.name",
+    	ou2.id AS "office.deputyPerson.id",
+    	ou2.name AS "office.deputyPerson.name"
+	</sql>
+	<sql id="scoretbEmployeeColumns">
+		a.id AS "id",
+		a.company_id AS "company.id",
+    	a.office_id AS "office.id",
+		a.sex AS "sex",
+		a.name AS "name",
+		a.age AS "age",
+		a.zw AS "zw",
+		a.zzmm AS "zzmm",
+		a.whcd AS "whcd",
+		a.drsj AS "drsj",
+		a.create_name AS "creatName",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag" 
+	</sql>
+	    
+	<sql id="tbEmployeeJoins">
+		JOIN sys_office c ON c.id = a.company_id
+		JOIN sys_area ca ON ca.id = c.area_id
+		JOIN sys_office o ON o.id = a.office_id
+		JOIN sys_area oa ON oa.id = o.area_id
+		LEFT JOIN sys_user cu ON cu.id = c.primary_person
+		LEFT JOIN sys_user cu2 ON cu2.id = c.deputy_person
+		LEFT JOIN sys_user ou ON ou.id = o.primary_person
+		LEFT JOIN sys_user ou2 ON ou2.id = o.deputy_person
+	</sql>
+    
+    <select id="findScoreEmployeeList" resultType="TbEmployee">
+		SELECT 
+			<include refid="scoretbEmployeeColumns"/>
+		FROM tb_employee a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="office != null and office.id != null and office.id != ''">
+				AND  office_id =  #{office.id}
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+    
+    
+	<select id="get" resultType="TbEmployee">
+		SELECT 
+			<include refid="tbEmployeeColumns"/>
+		FROM tb_employee a
+		<include refid="tbEmployeeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TbEmployee">
+		SELECT 
+			<include refid="tbEmployeeColumns"/>
+		FROM tb_employee a
+		<include refid="tbEmployeeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="sex != null and sex != ''">
+				AND a.sex = #{sex}
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="age != null and age != ''">
+				AND a.age = #{age}
+			</if>
+			<if test="zw != null and zw != ''">
+				AND a.zw = #{zw}
+			</if>
+			<if test="zzmm != null and zzmm != ''">
+				AND a.zzmm = #{zzmm}
+			</if>
+			<if test="whcd != null and whcd != ''">
+				AND a.whcd = #{whcd}
+			</if>
+			<if test="drsj != null and drsj != ''">
+				AND a.drsj = #{drsj}
+			</if>
+				<if test="company != null and company.id != null and company.id != ''">
+				AND (c.id = #{company.id} OR c.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{company.id}||',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{company.id}, ',%'))</if>
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND (o.id = #{office.id} OR o.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{office.id}||',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{office.id}, ',%'))</if>
+			</if>
+			<!-- 数据范围过滤 -->
+			${sqlMap.dsf}
+		</where>
+	
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbEmployee">
+		SELECT 
+			<include refid="tbEmployeeColumns"/>
+		FROM tb_employee a
+		<include refid="tbEmployeeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_employee(
+			id,
+			company_id, 
+			office_id, 
+			sex,
+			name,
+			age,
+			zw,
+			zzmm,
+			whcd,
+			drsj,
+			create_name,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{company.id}, 
+			#{office.id}, 
+			#{sex},
+			#{name},
+			#{age},
+			#{zw},
+			#{zzmm},
+			#{whcd},
+			#{drsj},
+			#{creatName},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_employee SET 	
+			company_id = #{company.id}, 
+			office_id = #{office.id}, 
+			sex = #{sex},
+			name = #{name},
+			age = #{age},
+			zw = #{zw},
+			zzmm = #{zzmm},
+			whcd = #{whcd},
+			drsj = #{drsj},
+			create_name = #{creatName},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE tb_employee SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

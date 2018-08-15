@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.accounts.dao.TbHalfyearTableDao">
+    
+	<sql id="tbHalfyearTableColumns">
+		a.id AS "id",
+		a.a1 AS "a1",
+		a.a2 AS "a2",
+		a.a3 AS "a3",
+		a.a4 AS "a4",
+		a.a5 AS "a5",
+		a.a6 AS "a6",
+		a.a7 AS "a7",
+		a.a8 AS "a8",
+		a.a9 AS "a9",
+		a.a10 AS "a10",
+		a.a11 AS "a11",
+		a.a12 AS "a12",
+		a.a13 AS "a13",
+		a.a14 AS "a14",
+		a.a15 AS "a15",
+		a.a16 AS "a16",
+		a.type AS "type",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.a17 AS "a17",
+		a.a18 AS "a18",
+		a.a19 AS "a19",
+		a.a20 AS "a20",
+		a.a21 AS "a21",
+		a.a22 AS "a22",
+		a.a23 AS "a23",
+		a.a24 AS "a24",
+		a.a25 AS "a25",
+		a.a26 AS "a26",
+		a.a27 AS "a27",
+		a.a28 AS "a28",
+		a.a29 AS "a29",
+		a.a30 AS "a30",
+		a.a31 AS "a31",
+		a.a32 AS "a32",
+		a.a33 AS "a33",
+		a.a34 AS "a34",
+		a.a35 AS "a35",
+		a.a36 AS "a36",
+		a.a37 AS "a37",
+		a.a38 AS "a38",
+		a.a39 AS "a39",
+		a.a40 AS "a40",
+		a.a41 AS "a41",
+		a.a42 AS "a42",
+		a.a43 AS "a43",
+		a.a44 AS "a44",
+		a.a45 AS "a45",
+		a.a46 AS "a46",
+		a.a47 AS "a47",
+		a.a48 AS "a48",
+		a.a49 AS "a49",
+		a.a50 AS "a50",
+		a.a51 AS "a51",
+		a.a52 AS "a52",
+		a.a53 AS "a53",
+		a.a54 AS "a54",
+		a.a55 AS "a55",
+		a.a56 AS "a56",
+		a.a57 AS "a57",
+		a.a58 AS "a58",
+		a.a59 AS "a59",
+		a.a60 AS "a60",
+		a.a61 AS "a61",
+		a.a62 AS "a62",
+		a.a63 AS "a63",
+		a.a64 AS "a64",
+		a.a65 AS "a65",
+		a.a66 AS "a66",
+		a.a67 AS "a67",
+		a.a68 AS "a68",
+		a.a69 AS "a69",
+		a.a70 AS "a70",
+		a.a71 AS "a71",
+		a.a72 AS "a72"
+	</sql>
+	
+	<sql id="tbHalfyearTableJoins">
+	</sql>
+    
+	<select id="get" resultType="TbHalfyearTable">
+		SELECT 
+			<include refid="tbHalfyearTableColumns"/>
+		FROM tb_halfyear_table a
+		<include refid="tbHalfyearTableJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TbHalfyearTable">
+		SELECT 
+			<include refid="tbHalfyearTableColumns"/>
+		FROM tb_halfyear_table a
+		<include refid="tbHalfyearTableJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="type != null and type != ''">
+				AND a.type = #{type}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbHalfyearTable">
+		SELECT 
+			<include refid="tbHalfyearTableColumns"/>
+		FROM tb_halfyear_table a
+		<include refid="tbHalfyearTableJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_halfyear_table(
+			id,
+			a1,
+			a2,
+			a3,
+			a4,
+			a5,
+			a6,
+			a7,
+			a8,
+			a9,
+			a10,
+			a11,
+			a12,
+			a13,
+			a14,
+			a15,
+			a16,
+			type,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			a17,
+			a18,
+			a19,
+			a20,
+			a21,
+			a22,
+			a23,
+			a24,
+			a25,
+			a26,
+			a27,
+			a28,
+			a29,
+			a30,
+			a31,
+			a32,
+			a33,
+			a34,
+			a35,
+			a36,
+			a37,
+			a38,
+			a39,
+			a40,
+			a41,
+			a42,
+			a43,
+			a44,
+			a45,
+			a46,
+			a47,
+			a48,
+			a49,
+			a50,
+			a51,
+			a52,
+			a53,
+			a54,
+			a55,
+			a56,
+			a57,
+			a58,
+			a59,
+			a60,
+			a61,
+			a62,
+			a63,
+			a64,
+			a65,
+			a66,
+			a67,
+			a68,
+			a69,
+			a70,
+			a71,
+			a72
+		) VALUES (
+			#{id},
+			#{a1},
+			#{a2},
+			#{a3},
+			#{a4},
+			#{a5},
+			#{a6},
+			#{a7},
+			#{a8},
+			#{a9},
+			#{a10},
+			#{a11},
+			#{a12},
+			#{a13},
+			#{a14},
+			#{a15},
+			#{a16},
+			#{type},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{a17},
+			#{a18},
+			#{a19},
+			#{a20},
+			#{a21},
+			#{a22},
+			#{a23},
+			#{a24},
+			#{a25},
+			#{a26},
+			#{a27},
+			#{a28},
+			#{a29},
+			#{a30},
+			#{a31},
+			#{a32},
+			#{a33},
+			#{a34},
+			#{a35},
+			#{a36},
+			#{a37},
+			#{a38},
+			#{a39},
+			#{a40},
+			#{a41},
+			#{a42},
+			#{a43},
+			#{a44},
+			#{a45},
+			#{a46},
+			#{a47},
+			#{a48},
+			#{a49},
+			#{a50},
+			#{a51},
+			#{a52},
+			#{a53},
+			#{a54},
+			#{a55},
+			#{a56},
+			#{a57},
+			#{a58},
+			#{a59},
+			#{a60},
+			#{a61},
+			#{a62},
+			#{a63},
+			#{a64},
+			#{a65},
+			#{a66},
+			#{a67},
+			#{a68},
+			#{a69},
+			#{a70},
+			#{a71},
+			#{a72}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_halfyear_table SET 	
+			a1 = #{a1},
+			a2 = #{a2},
+			a3 = #{a3},
+			a4 = #{a4},
+			a5 = #{a5},
+			a6 = #{a6},
+			a7 = #{a7},
+			a8 = #{a8},
+			a9 = #{a9},
+			a10 = #{a10},
+			a11 = #{a11},
+			a12 = #{a12},
+			a13 = #{a13},
+			a14 = #{a14},
+			a15 = #{a15},
+			a16 = #{a16},
+			type = #{type},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			a17 = #{a17},
+			a18 = #{a18},
+			a19 = #{a19},
+			a20 = #{a20},
+			a21 = #{a21},
+			a22 = #{a22},
+			a23 = #{a23},
+			a24 = #{a24},
+			a25 = #{a25},
+			a26 = #{a26},
+			a27 = #{a27},
+			a28 = #{a28},
+			a29 = #{a29},
+			a30 = #{a30},
+			a31 = #{a31},
+			a32 = #{a32},
+			a33 = #{a33},
+			a34 = #{a34},
+			a35 = #{a35},
+			a36 = #{a36},
+			a37 = #{a37},
+			a38 = #{a38},
+			a39 = #{a39},
+			a40 = #{a40},
+			a41 = #{a41},
+			a42 = #{a42},
+			a43 = #{a43},
+			a44 = #{a44},
+			a45 = #{a45},
+			a46 = #{a46},
+			a47 = #{a47},
+			a48 = #{a48},
+			a49 = #{a49},
+			a50 = #{a50},
+			a51 = #{a51},
+			a52 = #{a52},
+			a53 = #{a53},
+			a54 = #{a54},
+			a55 = #{a55},
+			a56 = #{a56},
+			a57 = #{a57},
+			a58 = #{a58},
+			a59 = #{a59},
+			a60 = #{a60},
+			a61 = #{a61},
+			a62 = #{a62},
+			a63 = #{a63},
+			a64 = #{a64},
+			a65 = #{a65},
+			a66 = #{a66},
+			a67 = #{a67},
+			a68 = #{a68},
+			a69 = #{a69},
+			a70 = #{a70},
+			a71 = #{a71},
+			a72 = #{a72}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE tb_halfyear_table SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

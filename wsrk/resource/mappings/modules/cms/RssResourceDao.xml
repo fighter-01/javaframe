@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.cms.dao.RssSourceDao">
+    
+	<sql id="cmsRssSourceDaoColumns">
+		a.id AS "id",
+		a.rssName AS "rssName",
+		a.rssUrl AS "rssUrl",
+		a.rssParser AS "rssParser",
+	    a.refTime AS "refTime"
+	</sql>
+	
+	<sql id="cmsRssSourceDaoJoins">
+	</sql>
+    
+	<select id="get" resultType="RSSSource">
+		SELECT 
+			<include refid="cmsRssSourceDaoColumns"/>
+		FROM rssSource a
+		<include refid="cmsRssSourceDaoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="RSSSource">
+		SELECT 
+			<include refid="cmsRssSourceDaoColumns"/>
+		FROM rssSource a
+		<include refid="cmsRssSourceDaoJoins"/>
+		<where>
+			a.del_flag = #{delFlag}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="RSSSource">
+		SELECT 
+			<include refid="cmsRssSourceDaoColumns"/>
+		FROM rssSource a
+		<include refid="cmsRssSourceDaoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rssSource(
+			id,
+			rssName,
+			rssUrl,
+			rssParser,
+	    	refTime,
+	    	create_date,
+	    	del_flag
+		) VALUES (
+			_nextval('pushid'),
+			#{rssName},
+			#{rssUrl},
+			#{rssParser},
+	    	#{refTime},
+			sysdate(),
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE rssSource SET 	
+			rssName = ${rssName},
+			rssUrl = ${rssUrl},
+			rssParser = ${rssParser},
+	    	refTime = ${refTime},
+	    	del_flag = ${del_flag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE rssSource SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

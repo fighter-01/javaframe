@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.cms.dao.CommentMessageDao">
+    
+	<sql id="commentMessageDaoColumns">
+		a.id AS "id",
+		a.a_id AS "a_id",
+		a.mc_id AS "mc_id",
+		a.name AS "name",
+		a.user_avator AS "user_avator",
+		a.title AS "title",
+	    a.content AS "content",
+	    a.comment_source AS "comment_source",
+	    a.click_a_like AS "click_a_like",
+	    a.again_comment AS "again_comment",
+	    a.comment_nums AS "comment_nums",
+	    a.comment_time As "comment_time",
+	    a.img_url AS "img_url",
+	    a.top_comment AS "top_comment"
+	</sql>
+	
+	<sql id="commentMessageDaoJoins">
+	</sql>
+    
+	<select id="get" resultType="CommentMessage">
+		SELECT 
+			<include refid="commentMessageDaoColumns"/>
+		FROM message_comment a
+		<include refid="commentMessageDaoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CommentMessage">
+		SELECT 
+			<include refid="commentMessageDaoColumns"/>
+		FROM message_comment a
+		<include refid="commentMessageDaoJoins"/>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.comment_time DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CommentMessage">
+		SELECT 
+			<include refid="commentMessageDaoColumns"/>
+		FROM message_report a
+		<include refid="commentMessageDaoJoins"/>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.comment_time DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO message_comment(
+			id,
+			a_id,
+			mc_id,
+			name,
+			user_avator,
+			title,
+	    	content,
+	    	comment_source,
+	    	click_a_like,
+	    	again_comment,
+	    	comment_nums,
+	    	comment_time,
+	    	img_url,
+	    	top_comment
+		) VALUES (
+			_nextval('pushid'),
+			#{a_id},
+			#{mc_id},
+			#{name},
+			#{user_avator},
+			#{title},
+	    	#{content},
+	    	#{comment_source},
+	    	#{click_a_like},
+	    	#{again_comment},
+	    	#{comment_nums},
+	    	sysdate(),
+	    	#{img_url},
+	    	#{top_comment}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE message_comment SET 	
+			a_id = #{a_id},
+			mc_id = #{mc_id},
+			name = #{name},
+			user_avator = #{user_avator},
+			title = #{title},
+	    	content = #{content},
+	    	click_a_like = #{click_a_like},
+	    	again_comment = #{again_comment},
+	    	comment_nums = #{comment_nums},
+	    	comment_time = #{comment_time},
+	    	img_url = #{img_url},
+	    	top_comment = #{top_comment}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE message_comment SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

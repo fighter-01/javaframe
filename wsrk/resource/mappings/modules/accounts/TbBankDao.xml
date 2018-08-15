@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.accounts.dao.TbBankDao">
+    
+	<sql id="tbBankColumns">
+		a.id AS "id",
+		a.sex AS "sex",
+		a.name AS "name",
+		a.mz AS "mz",
+		a.whcd AS "whcd",
+		a.department AS "department",
+		a.zw AS "zw",
+		a.zzmm AS "zzmm",
+		a.zc AS "zc",
+		a.hyzk AS "hyzk",
+		a.jrhd_cyr AS "jrhdCyr",
+		a.jrhd_hdmc AS "jrhdHdmc",
+		a.jrhd_sjje AS "jrhdSjje",
+		a.jrhd_jtsj AS "jrhdJtsj",
+		a.dkyq_yjzl AS "dkyqYjzl",
+		a.dkyq_sjje AS "dkyqSjje",
+		a.dkyq_jrjgmc AS "dkyqJrjgmc",
+		a.dkyq_sj AS "dkyqSj",
+		a.dkyq_bqssj AS "dkyqBqssj",
+		a.dkyq_bqjtqk AS "dkyqBqjtqk",
+		a.mjjk_sjje AS "mjjkSjje",
+		a.mjjk_xm AS "mjjkXm",
+		a.mjjk_gx AS "mjjkGx",
+		a.mjjk_sj AS "mjjkSj",
+		a.mjjk_jtqk AS "mjjkJtqk",
+		a.db_je AS "dbJe",
+		a.db_xm AS "dbXm",
+		a.db_gx AS "dbGx",
+		a.db_sjjtqk AS "dbSjjtqk",
+		a.credit_je AS "creditJe",
+		a.credit_deptname AS "creditDeptname",
+		a.credit_date AS "creditDate",
+		a.credit_name AS "creditName",
+		a.credit_gx AS "creditGx",
+		a.credit_qk AS "creditQk",
+		a.gm_sjje AS "gmSjje",
+		a.gm_name AS "gmName",
+		a.gm_xm AS "gmXm",
+		a.gm_gx AS "gmGx",
+		a.gm_qk AS "gmQk",
+		a.qt_fx AS "qtFx",
+		a.bgrq AS "bgrq",
+		a.bh AS "bh",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.company_id AS "company.id",
+    	a.office_id AS "office.id",
+		c.name AS "company.name",
+    	c.parent_id AS "company.parent.id",
+    	c.parent_ids AS "company.parentIds",
+    	ca.id AS "company.area.id",
+    	ca.name AS "company.area.name",
+    	ca.parent_id AS "company.area.parent.id",
+    	ca.parent_ids AS "company.area.parentIds",
+    	o.name AS "office.name",
+    	o.parent_id AS "office.parent.id",
+    	o.parent_ids AS "office.parentIds",
+    	oa.id AS "office.area.id",
+    	oa.name AS "office.area.name",
+    	oa.parent_id AS "office.area.parent.id",
+    	oa.parent_ids AS "office.area.parentIds",
+    	cu.id AS "company.primaryPerson.id",
+    	cu.name AS "company.primaryPerson.name",
+    	cu2.id AS "company.deputyPerson.id",
+    	cu2.name AS "company.deputyPerson.name",
+    	ou.id AS "office.primaryPerson.id",
+    	ou.name AS "office.primaryPerson.name",
+    	ou2.id AS "office.deputyPerson.id",
+    	ou2.name AS "office.deputyPerson.name"
+	</sql>
+    <sql id="tbBankJoins">
+		JOIN sys_office c ON c.id = a.company_id
+		JOIN sys_area ca ON ca.id = c.area_id
+		JOIN sys_office o ON o.id = a.office_id
+		JOIN sys_area oa ON oa.id = o.area_id
+		LEFT JOIN sys_user cu ON cu.id = c.primary_person
+		LEFT JOIN sys_user cu2 ON cu2.id = c.deputy_person
+		LEFT JOIN sys_user ou ON ou.id = o.primary_person
+		LEFT JOIN sys_user ou2 ON ou2.id = o.deputy_person
+	</sql>
+    
+	<select id="get" resultType="TbBank">
+		SELECT 
+			<include refid="tbBankColumns"/>
+		FROM tb_bank a
+		<include refid="tbBankJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TbBank">
+		SELECT 
+			<include refid="tbBankColumns"/>
+		FROM tb_bank a
+		<include refid="tbBankJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="zc != null and zc != ''">
+				AND a.zc = #{zc}
+			</if>
+			<if test="beginBgrq != null and endBgrq != null and beginBgrq != '' and endBgrq != ''">
+				AND a.bgrq BETWEEN #{beginBgrq} AND #{endBgrq}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (c.id = #{company.id} OR c.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{company.id}||',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{company.id}, ',%'))</if>
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND (o.id = #{office.id} OR o.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{office.id}||',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{office.id}, ',%'))</if>
+			</if>
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbBank">
+		SELECT 
+			<include refid="tbBankColumns"/>
+		FROM tb_bank a
+		<include refid="tbBankJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_bank(
+			id,
+			sex,
+			name,
+			mz,
+			whcd,
+			department,
+			zw,
+			zzmm,
+			zc,
+			hyzk,
+			jrhd_cyr,
+			jrhd_hdmc,
+			jrhd_sjje,
+			jrhd_jtsj,
+			dkyq_yjzl,
+			dkyq_sjje,
+			dkyq_jrjgmc,
+			dkyq_sj,
+			dkyq_bqssj,
+			dkyq_bqjtqk,
+			mjjk_sjje,
+			mjjk_xm,
+			mjjk_gx,
+			mjjk_sj,
+			mjjk_jtqk,
+			db_je,
+			db_xm,
+			db_gx,
+			db_sjjtqk,
+			credit_je,
+			credit_deptname,
+			credit_date,
+			credit_name,
+			credit_gx,
+			credit_qk,
+			gm_sjje,
+			gm_name,
+			gm_xm,
+			gm_gx,
+			gm_qk,
+			qt_fx,
+			bgrq,
+			bh,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			company_id,
+			office_id
+		) VALUES (
+			#{id},
+			#{sex},
+			#{name},
+			#{mz},
+			#{whcd},
+			#{department},
+			#{zw},
+			#{zzmm},
+			#{zc},
+			#{hyzk},
+			#{jrhdCyr},
+			#{jrhdHdmc},
+			#{jrhdSjje},
+			#{jrhdJtsj},
+			#{dkyqYjzl},
+			#{dkyqSjje},
+			#{dkyqJrjgmc},
+			#{dkyqSj},
+			#{dkyqBqssj},
+			#{dkyqBqjtqk},
+			#{mjjkSjje},
+			#{mjjkXm},
+			#{mjjkGx},
+			#{mjjkSj},
+			#{mjjkJtqk},
+			#{dbJe},
+			#{dbXm},
+			#{dbGx},
+			#{dbSjjtqk},
+			#{creditJe},
+			#{creditDeptname},
+			#{creditDate},
+			#{creditName},
+			#{creditGx},
+			#{creditQk},
+			#{gmSjje},
+			#{gmName},
+			#{gmXm},
+			#{gmGx},
+			#{gmQk},
+			#{qtFx},
+			#{bgrq},
+			#{bh},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{company.id},
+			#{office.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_bank SET 	
+			sex = #{sex},
+			name = #{name},
+			mz = #{mz},
+			whcd = #{whcd},
+			department = #{department},
+			zw = #{zw},
+			zzmm = #{zzmm},
+			zc = #{zc},
+			hyzk = #{hyzk},
+			jrhd_cyr = #{jrhdCyr},
+			jrhd_hdmc = #{jrhdHdmc},
+			jrhd_sjje = #{jrhdSjje},
+			jrhd_jtsj = #{jrhdJtsj},
+			dkyq_yjzl = #{dkyqYjzl},
+			dkyq_sjje = #{dkyqSjje},
+			dkyq_jrjgmc = #{dkyqJrjgmc},
+			dkyq_sj = #{dkyqSj},
+			dkyq_bqssj = #{dkyqBqssj},
+			dkyq_bqjtqk = #{dkyqBqjtqk},
+			mjjk_sjje = #{mjjkSjje},
+			mjjk_xm = #{mjjkXm},
+			mjjk_gx = #{mjjkGx},
+			mjjk_sj = #{mjjkSj},
+			mjjk_jtqk = #{mjjkJtqk},
+			db_je = #{dbJe},
+			db_xm = #{dbXm},
+			db_gx = #{dbGx},
+			db_sjjtqk = #{dbSjjtqk},
+			credit_je = #{creditJe},
+			credit_deptname = #{creditDeptname},
+			credit_date = #{creditDate},
+			credit_name = #{creditName},
+			credit_gx = #{creditGx},
+			credit_qk = #{creditQk},
+			gm_sjje = #{gmSjje},
+			gm_name = #{gmName},
+			gm_xm = #{gmXm},
+			gm_gx = #{gmGx},
+			gm_qk = #{gmQk},
+			qt_fx = #{qtFx},
+			bgrq = #{bgrq},
+			bh = #{bh},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			company_id = #{company.id},
+			office_id = #{office.id}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE tb_bank SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

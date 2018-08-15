@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.accounts.dao.TbEducationDao">
+    
+	<sql id="tbEducationColumns">
+		a.id AS "id",
+		a.anchorman AS "anchorman",
+		a.talk_object AS "talkObject",
+		a.talk_time AS "talkTime",
+		a.talk_place AS "talkPlace",
+		a.talk_reason AS "talkReason",
+		a.talk_content AS "talkContent",
+		a.talk_promise AS "talkPromise",
+		a.create_name AS "createName",
+		a.lr_date AS "lrDate",
+		a.type AS "type",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+			a.company_id AS "company.id",
+    	a.office_id AS "office.id",
+		c.name AS "company.name",
+    	c.parent_id AS "company.parent.id",
+    	c.parent_ids AS "company.parentIds",
+    	ca.id AS "company.area.id",
+    	ca.name AS "company.area.name",
+    	ca.parent_id AS "company.area.parent.id",
+    	ca.parent_ids AS "company.area.parentIds",
+    	o.name AS "office.name",
+    	o.parent_id AS "office.parent.id",
+    	o.parent_ids AS "office.parentIds",
+    	oa.id AS "office.area.id",
+    	oa.name AS "office.area.name",
+    	oa.parent_id AS "office.area.parent.id",
+    	oa.parent_ids AS "office.area.parentIds",
+    	cu.id AS "company.primaryPerson.id",
+    	cu.name AS "company.primaryPerson.name",
+    	cu2.id AS "company.deputyPerson.id",
+    	cu2.name AS "company.deputyPerson.name",
+    	ou.id AS "office.primaryPerson.id",
+    	ou.name AS "office.primaryPerson.name",
+    	ou2.id AS "office.deputyPerson.id",
+    	ou2.name AS "office.deputyPerson.name"
+	</sql>
+	
+	<sql id="tbEducationJoins">
+		JOIN sys_office c ON c.id = a.company_id
+		JOIN sys_area ca ON ca.id = c.area_id
+		JOIN sys_office o ON o.id = a.office_id
+		JOIN sys_area oa ON oa.id = o.area_id
+		LEFT JOIN sys_user cu ON cu.id = c.primary_person
+		LEFT JOIN sys_user cu2 ON cu2.id = c.deputy_person
+		LEFT JOIN sys_user ou ON ou.id = o.primary_person
+		LEFT JOIN sys_user ou2 ON ou2.id = o.deputy_person
+	</sql>
+    
+	<select id="get" resultType="TbEducation">
+		SELECT 
+			<include refid="tbEducationColumns"/>
+		FROM tb_education a
+		<include refid="tbEducationJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TbEducation">
+		SELECT 
+			<include refid="tbEducationColumns"/>
+		FROM tb_education a
+		<include refid="tbEducationJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="anchorman != null and anchorman != ''">
+				AND a.anchorman LIKE 
+					<if test="dbName == 'oracle'">'%'||#{anchorman}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{anchorman}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{anchorman},'%')</if>
+			</if>
+			<if test="talkObject != null and talkObject != ''">
+				AND a.talk_object LIKE 
+					<if test="dbName == 'oracle'">'%'||#{talkObject}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{talkObject}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{talkObject},'%')</if>
+			</if>
+			<if test="beginTalkTime != null and endTalkTime != null and beginTalkTime != '' and endTalkTime != ''">
+				AND a.talk_time BETWEEN #{beginTalkTime} AND #{endTalkTime}
+			</if>
+			<if test="talkPlace != null and talkPlace != ''">
+				AND a.talk_place LIKE 
+					<if test="dbName == 'oracle'">'%'||#{talkPlace}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{talkPlace}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{talkPlace},'%')</if>
+			</if>
+			<if test="beginLrDate != null and endLrDate != null and beginLrDate != '' and endLrDate != ''">
+				AND a.lr_date BETWEEN #{beginLrDate} AND #{endLrDate}
+			</if>
+				<if test="company != null and company.id != null and company.id != ''">
+				AND (c.id = #{company.id} OR c.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{company.id}||',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{company.id}, ',%'))</if>
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND (o.id = #{office.id} OR o.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{office.id}||',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{office.id}, ',%'))</if>
+			</if>
+				<!-- 数据范围过滤 -->
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbEducation">
+		SELECT 
+			<include refid="tbEducationColumns"/>
+		FROM tb_education a
+		<include refid="tbEducationJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_education(
+			id,
+			anchorman,
+			talk_object,
+			talk_time,
+			talk_place,
+			talk_reason,
+			talk_content,
+			talk_promise,
+			create_name,
+			lr_date,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			company_id,
+			office_id
+		) VALUES (
+			#{id},
+			#{anchorman},
+			#{talkObject},
+			#{talkTime},
+			#{talkPlace},
+			#{talkReason},
+			#{talkContent},
+			#{talkPromise},
+			#{createName},
+			#{lrDate},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{company.id},
+			#{office.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_education SET 	
+			anchorman = #{anchorman},
+			talk_object = #{talkObject},
+			talk_time = #{talkTime},
+			talk_place = #{talkPlace},
+			talk_reason = #{talkReason},
+			talk_content = #{talkContent},
+			talk_promise = #{talkPromise},
+			create_name = #{createName},
+			lr_date = #{lrDate},
+			company_id = #{company.id},
+			office_id = #{office.id}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE tb_education SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

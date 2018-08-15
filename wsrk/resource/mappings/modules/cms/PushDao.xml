@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.cms.dao.PushDao">
+    
+	<sql id="cmsPushDaoColumns">
+		a.id AS "id",
+		a.content AS "content",
+		a.platform AS "platform",
+		a.aliases AS "aliases",
+		a.tagValues AS "tagValues",
+	    a.registrationIds AS "registrationIds",
+	    a.segments AS "segments",
+	    a.status AS "status",
+	    a.del_flag as "delFlag"
+	</sql>
+	
+	<sql id="cmsPushDaoJoins">
+	</sql>
+    
+	<select id="get" resultType="Push">
+		SELECT 
+			<include refid="cmsPushDaoColumns"/>
+		FROM cms_push a
+		<include refid="cmsPushDaoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Push">
+		SELECT 
+			<include refid="cmsPushDaoColumns"/>
+		FROM cms_push a
+		<include refid="cmsPushDaoJoins"/>
+		<where>
+			a.del_flag = #{delFlag}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Push">
+		SELECT 
+			<include refid="cmsPushDaoColumns"/>
+		FROM cms_push a
+		<include refid="cmsPushDaoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cms_push(
+			id,
+			content,
+			platform,
+			aliases,
+			tagValues,
+	    	registrationIds,
+	    	segments,
+	    	status,
+	    	create_date,
+	    	del_flag
+		) VALUES (
+			_nextval('pushid'),
+			#{content},
+			#{platform},
+			#{aliases},
+			#{tagValues},
+			#{registrationIds},
+			#{segments},
+			1,
+			sysdate(),
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cms_push SET 	
+			
+			content = #{content},
+			platform = #{platform},
+			aliases = #{aliases},
+			tagValues = #{tagValues},
+			registrationIds = #{registrationIds},
+			segments = #{segments},
+			status = #{status},
+			del_flag = #{delFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE cms_push SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

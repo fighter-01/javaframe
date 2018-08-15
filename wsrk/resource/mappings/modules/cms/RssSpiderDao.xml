@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.cms.dao.RssSpiderDao">
+    
+	<sql id="cmsRssSpiderDaoColumns">
+		a.id AS "id",
+		a.rss AS "rss",
+		a.title AS "title",
+		a.rssAbstract AS "rssAbstract",
+	    a.url AS "url",
+	    a.photo AS "photo",
+	    a.publiserTime AS "publiserTime"
+	</sql>
+	
+	<sql id="cmsRssSpiderDaoJoins">
+	</sql>
+    
+	<select id="get" resultType="RssSpider">
+		SELECT 
+			<include refid="cmsRssSpiderDaoColumns"/>
+		FROM rssSpider a
+		<include refid="cmsRssSpiderDaoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="RssSpider">
+		SELECT 
+			<include refid="cmsRssSpiderDaoColumns"/>
+		FROM rssSpider a
+		<include refid="cmsRssSpiderDaoJoins"/>
+		<where>
+			a.del_flag = #{delFlag}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.publiserTime DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="RssSpider">
+		SELECT 
+			<include refid="cmsRssSpiderDaoColumns"/>
+		FROM rssSpider a
+		<include refid="cmsRssSpiderDaoJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO rssSpider(
+			id,
+			rss,
+			title,
+			rssAbstract,
+	    	url,
+	    	photo,
+	    	publiserTime,
+	    	del_flag
+		) VALUES (
+			_nextval('pushid'),
+			#{rss},
+			#{title},
+			#{rssAbstract},
+	    	#{url},
+			#{photo},
+			#{publiserTime},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tssSpider SET 	
+			rss = ${rss},
+			title = ${title},
+			rssAbstract = ${rssAbstract},
+	    	url = ${url},
+	    	photo = ${photo},
+	    	publiserTime = ${publiserTime},
+	    	del_flag = ${del_flag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE rssSpider SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

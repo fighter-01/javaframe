@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.accounts.dao.TbAccountsScoreDao">
+	<sql id="tbAccountsScoreColumns">
+		a.id AS "id",
+		a.year AS "year",
+		a.jidu AS "jidu",
+		a.score AS "score",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.company_id AS "company.id",
+		a.office_id AS "office.id",
+		o11.name AS "company.name",
+		o12.name AS "office.name"
+	</sql>
+	
+	<sql id="tbAccountsScoreJoins">
+		LEFT JOIN sys_office o11 ON o11.id = a.company_id
+		LEFT JOIN sys_office o12 ON o12.id = a.office_id
+	</sql>
+    
+	<select id="get" resultType="TbAccountsScore">
+		SELECT 
+			<include refid="tbAccountsScoreColumns"/>
+		FROM tb_accounts_score a
+		<include refid="tbAccountsScoreJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TbAccountsScore">
+		SELECT 
+			<include refid="tbAccountsScoreColumns"/>
+		FROM tb_accounts_score a
+		<include refid="tbAccountsScoreJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="year != null and year != ''">
+				AND a.year = #{year}
+			</if>
+			<if test="jidu != null and jidu != ''">
+				AND a.jidu = #{jidu}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND a.company_id = #{company.id}
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.office_id = #{office.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbAccountsScore">
+		SELECT 
+			<include refid="tbAccountsScoreColumns"/>
+		FROM tb_accounts_score a
+		<include refid="tbAccountsScoreJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_accounts_score(
+			id,
+			year,
+			jidu,
+			score,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			company_id,
+			office_id
+		) VALUES (
+			#{id},
+			#{year},
+			#{jidu},
+			#{score},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{company.id},
+			#{office.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_accounts_score SET 	
+			year = #{year},
+			jidu = #{jidu},
+			score = #{score},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			company_id = #{company.id},
+			office_id = #{office.id}
+		WHERE id = #{id }
+	</update>
+	
+	<update id="delete">
+		UPDATE tb_accounts_score SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	<select id="findAllAccountsList" resultType="com.thinkgem.javamg.modules.accounts.entity.AllAccountsModel">
+		SELECT id AS id,"1" AS type,"部门人员基本情况" AS AccountType, now() submitTime,create_name AS SubmitPerson from tb_employee  where office_id = #{officeId} limit 1
+		 union all
+		SELECT id AS id,"2" AS type,"党风廉政建设工作计划及措施" AS AccountType,lr_date AS submitTime,create_name AS SubmitPerson from tb_plan where office_id = #{officeId} AND lr_date BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+		 union all
+		SELECT id AS id,"3" AS type,"参加中支（支行）机关党风廉政建设活动情况" AS AccountType,lr_date AS submitTime,create_name AS SubmitPerson from tb_office_dflz where office_id = #{officeId} AND lr_date BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+		 union all
+		SELECT id AS id,"4" AS type,"部门组织的党风廉政建设教育情况" AS AccountType,lr_date AS submitTime,create_name AS SubmitPerson from tb_dept_dflz where office_id = #{officeId} AND lr_date BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+		 union all
+		SELECT id AS id,"5" AS type,"行（政）务公开情况" AS AccountType,lr_date AS submitTime,create_name AS SubmitPerson from tb_affairs_open where office_id = #{officeId} AND lr_date BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+		 union all
+		SELECT id AS id,"6" AS type,"党风廉政谈话情况" AS AccountType,lr_date AS submitTime,create_name AS SubmitPerson from tb_education where office_id = #{officeId} AND lr_date BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+		 union all
+		SELECT id AS id,"7" AS type,"接受监督情况" AS AccountType,lr_date AS submitTime,create_name AS SubmitPerson from tb_supervision where office_id = #{officeId} AND lr_date BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+		 union all
+		SELECT id AS id,"8" AS type,"部门落实党风廉政建设责任制半年自查表" AS AccountType,sign_time AS submitTime,create_name AS SubmitPerson from tb_halfyear where office_id = #{officeId} AND sign_time BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+		 union all
+		SELECT id AS id,"9" AS type,"部门落实党风廉政建设责任制年度量化考评表" AS AccountType,hld_sign_time AS submitTime,create_name AS SubmitPerson from tb_year where office_id = #{officeId} AND hld_sign_time BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+		 union all
+		SELECT id AS id,"10" AS type,"行领导对分管部门党风廉政建设工作检查记录" AS AccountType,hld_sign_time AS submitTime,create_name AS SubmitPerson from tb_work_inspect where office_id = #{officeId} AND hld_sign_time BETWEEN #{beginLrDate} AND #{endLrDate} AND del_flag = '0'
+	</select>
+	
+</mapper>

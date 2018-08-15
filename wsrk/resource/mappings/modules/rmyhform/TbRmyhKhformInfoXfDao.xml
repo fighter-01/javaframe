@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.rmyhform.dao.TbRmyhKhformInfoXfDao">
+    
+	<sql id="tbRmyhKhformInfoXfColumns">
+		a.flag_id AS "flagId",
+		a.id AS "id",
+		a.parent_id AS "parent.id",
+		a.parent_ids AS "parentIds",
+		a.name AS "name",
+		a.sort AS "sort",
+		a.all_score AS "allScore",
+		a.score AS "score",
+		a.kf_reason AS "kfReason",
+		a.type AS "type",
+		a.kh_start_time AS "khStartTime",
+		a.kh_end_time AS "khEndTime",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.xf_flag AS "xfFlag"
+	</sql>
+	
+	
+    
+	<select id="get" resultType="TbRmyhKhformInfo">
+		SELECT 
+			<include refid="tbRmyhKhformInfoXfColumns"/>
+		FROM tb_rmyh_khform_info_xf a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="flagId != null and flagId != ''">
+				AND a.flag_id = #{flagId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findList" resultType="TbRmyhKhformInfo">
+		SELECT 
+			<include refid="tbRmyhKhformInfoXfColumns"/>
+		FROM tb_rmyh_khform_info_xf a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="flagId != null and flagId != ''">
+				AND a.flag_id = #{flagId}
+			</if>
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="parent != null and parent.id != null and parent.id != ''">
+				AND a.parent_id = #{parent.id}
+			</if>
+			<if test="parentIds != null and parentIds != ''">
+				AND a.parent_ids LIKE 
+					<if test="dbName == 'oracle'">'%'||#{parentIds}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{parentIds}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{parentIds},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="findAllList" resultType="TbRmyhKhformInfo">
+		SELECT 
+			<include refid="tbRmyhKhformInfoXfColumns"/>
+		FROM tb_rmyh_khform_info_xf a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="findByParentIdsLike" resultType="TbRmyhKhformInfo">
+		SELECT
+			a.id,
+			a.parent_id AS "parent.id",
+			a.parent_ids
+		FROM tb_rmyh_khform_info_xf a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.parent_ids LIKE #{parentIds}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_rmyh_khform_info_xf(
+			flag_id,
+			id,
+			parent_id,
+			parent_ids,
+			name,
+			sort,
+			all_score,
+			score,
+			kf_reason,
+			type,
+			kh_start_time,
+			kh_end_time,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			xf_flag
+		) VALUES (
+			#{flagId},
+			#{id},
+			#{parent.id},
+			#{parentIds},
+			#{name},
+			#{sort},
+			#{allScore},
+			#{score},
+			#{kfReason},
+			#{type},
+			#{khStartTime},
+			#{khEndTime},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xfFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_rmyh_khform_info_xf SET 	
+			flag_id = #{flagId},
+			parent_id = #{parent.id},
+			parent_ids = #{parentIds},
+			name = #{name},
+			sort = #{sort},
+			all_score = #{allScore},
+			score = #{score},
+			kf_reason = #{kfReason},
+			type = #{type},
+			kh_start_time = #{khStartTime},
+			kh_end_time = #{khEndTime},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			xf_flag = #{xfFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateParentIds">
+		UPDATE tb_rmyh_khform_info_xf SET 
+			parent_id = #{parent.id}, 
+			parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		delete from tb_rmyh_khform_info_xf 
+		WHERE flag_id = #{flagId}
+	</update>
+	
+</mapper>

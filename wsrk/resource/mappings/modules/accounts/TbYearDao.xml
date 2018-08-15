@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.accounts.dao.TbYearDao">
+    
+	<sql id="tbYearColumns">
+		a.id AS "id",
+		a.a1 AS "a1",
+		a.a2 AS "a2",
+		a.a3 AS "a3",
+		a.a4 AS "a4",
+		a.a5 AS "a5",
+		a.a6 AS "a6",
+		a.a7 AS "a7",
+		a.a8 AS "a8",
+		a.a9 AS "a9",
+		a.a10 AS "a10",
+		a.a11 AS "a11",
+		a.a12 AS "a12",
+		a.a13 AS "a13",
+		a.a14 AS "a14",
+		a.a15 AS "a15",
+		a.a AS "a",
+		a.b AS "b",
+		a.c AS "c",
+		a.d AS "d",
+		a.e AS "e",
+		a.dept_sign AS "deptSign",
+		a.dept_sign_time AS "deptSignTime",
+		a.hld_sign AS "hldSign",
+		a.hld_sign_time AS "hldSignTime",
+		a.status AS "status",
+		a.create_name AS "createName",
+		a.lr_date AS "lrDate",
+		a.type AS "type",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.company_id AS "company.id",
+    	a.office_id AS "office.id",
+		c.name AS "company.name",
+    	c.parent_id AS "company.parent.id",
+    	c.parent_ids AS "company.parentIds",
+    	ca.id AS "company.area.id",
+    	ca.name AS "company.area.name",
+    	ca.parent_id AS "company.area.parent.id",
+    	ca.parent_ids AS "company.area.parentIds",
+    	o.name AS "office.name",
+    	o.parent_id AS "office.parent.id",
+    	o.parent_ids AS "office.parentIds",
+    	oa.id AS "office.area.id",
+    	oa.name AS "office.area.name",
+    	oa.parent_id AS "office.area.parent.id",
+    	oa.parent_ids AS "office.area.parentIds",
+    	cu.id AS "company.primaryPerson.id",
+    	cu.name AS "company.primaryPerson.name",
+    	cu2.id AS "company.deputyPerson.id",
+    	cu2.name AS "company.deputyPerson.name",
+    	ou.id AS "office.primaryPerson.id",
+    	ou.name AS "office.primaryPerson.name",
+    	ou2.id AS "office.deputyPerson.id",
+    	ou2.name AS "office.deputyPerson.name"
+	</sql>
+	
+	<sql id="tbYearJoins">
+		JOIN sys_office c ON c.id = a.company_id
+		JOIN sys_area ca ON ca.id = c.area_id
+		JOIN sys_office o ON o.id = a.office_id
+		JOIN sys_area oa ON oa.id = o.area_id
+		LEFT JOIN sys_user cu ON cu.id = c.primary_person
+		LEFT JOIN sys_user cu2 ON cu2.id = c.deputy_person
+		LEFT JOIN sys_user ou ON ou.id = o.primary_person
+		LEFT JOIN sys_user ou2 ON ou2.id = o.deputy_person
+	</sql>
+    
+	<select id="get" resultType="TbYear">
+		SELECT 
+			<include refid="tbYearColumns"/>
+		FROM tb_year a
+		<include refid="tbYearJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TbYear">
+		SELECT 
+			<include refid="tbYearColumns"/>
+		FROM tb_year a
+		<include refid="tbYearJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="beginDeptSignTime != null and endDeptSignTime != null and beginDeptSignTime != '' and endDeptSignTime != ''">
+				AND a.dept_sign_time BETWEEN #{beginDeptSignTime} AND #{endDeptSignTime}
+			</if>
+			<if test="beginHldSignTime != null and endHldSignTime != null and beginHldSignTime != '' and endHldSignTime != ''">
+				AND a.hld_sign_time BETWEEN #{beginHldSignTime} AND #{endHldSignTime}
+			</if>
+			<if test="status2 != null and status2 != '' and status1 != null and status1 != '' and status3 != null and status3 != '' and status4 != null and status4 != ''">
+				AND ( a.status = #{status1} OR  a.status = #{status2}OR  a.status = #{status3} OR  a.status = #{status4})
+			</if>
+			<if test=" status5 != null and status5 != '' and status6 != null and status6 != ''">
+				AND ( a.status = #{status5} OR  a.status = #{status6})
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+			<if test="company != null and company.id != null and company.id != ''">
+				AND (c.id = #{company.id} OR c.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{company.id}||',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{company.id}, ',%'))</if>
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND (o.id = #{office.id} OR o.parent_ids LIKE 
+						<if test="dbName == 'oracle'">'%,'||#{office.id}||',%')</if>
+						<if test="dbName == 'mysql'">CONCAT('%,', #{office.id}, ',%'))</if>
+			</if>
+				<!-- 数据范围过滤 -->
+			${sqlMap.dsf}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbYear">
+		SELECT 
+			<include refid="tbYearColumns"/>
+		FROM tb_year a
+		<include refid="tbYearJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_year(
+			id,
+			a1,
+			a2,
+			a3,
+			a4,
+			a5,
+			a6,
+			a7,
+			a8,
+			a9,
+			a10,
+			a11,
+			a12,
+			a13,
+			a14,
+			a15,
+			a,
+			b,
+			c,
+			d,
+			e,
+			dept_sign,
+			dept_sign_time,
+			hld_sign,
+			hld_sign_time,
+			status,
+			create_name,
+			lr_date,
+			type,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			company_id,
+			office_id
+		) VALUES (
+			#{id},
+			#{a1},
+			#{a2},
+			#{a3},
+			#{a4},
+			#{a5},
+			#{a6},
+			#{a7},
+			#{a8},
+			#{a9},
+			#{a10},
+			#{a11},
+			#{a12},
+			#{a13},
+			#{a14},
+			#{a15},
+			#{a},
+			#{b},
+			#{c},
+			#{d},
+			#{e},
+			#{deptSign},
+			#{deptSignTime},
+			#{hldSign},
+			#{hldSignTime},
+			#{status},
+			#{createName},
+			#{lrDate},
+			#{type},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{company.id},
+			#{office.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_year SET 	
+			a1 = #{a1},
+			a2 = #{a2},
+			a3 = #{a3},
+			a4 = #{a4},
+			a5 = #{a5},
+			a6 = #{a6},
+			a7 = #{a7},
+			a8 = #{a8},
+			a9 = #{a9},
+			a10 = #{a10},
+			a11 = #{a11},
+			a12 = #{a12},
+			a13 = #{a13},
+			a14 = #{a14},
+			a15 = #{a15},
+			a = #{a},
+			b = #{b},
+			c = #{c},
+			d = #{d},
+			e = #{e},
+			dept_sign = #{deptSign},
+			dept_sign_time = #{deptSignTime},
+			hld_sign = #{hldSign},
+			hld_sign_time = #{hldSignTime},
+			status = #{status},
+			create_name = #{createName},
+			lr_date = #{lrDate},
+			type = #{type},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			company_id = #{company.id},
+			office_id = #{office.id}
+		WHERE id = #{id}
+	</update>
+	
+	 <update id="updateStatus">
+		UPDATE tb_year SET 
+		<if test="remarks != null and remarks != ''">
+			remarks = #{remarks} ,
+		</if>
+		<if test="deptSign != null and deptSign != ''">
+			dept_sign = #{deptSign},
+		</if>
+		<if test="deptSignTime != null and deptSignTime != ''">
+			dept_sign_time = #{deptSignTime},
+		</if>
+		<if test="hldSign != null and hldSign != ''">
+			hld_sign = #{hldSign},
+		</if>
+		<if test="hldSignTime != null and hldSignTime != ''">
+			hld_sign_time = #{hldSignTime},
+		</if>
+			status = #{status}
+		WHERE id = #{id}
+ </update>
+ 
+	<update id="delete">
+		UPDATE tb_year SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

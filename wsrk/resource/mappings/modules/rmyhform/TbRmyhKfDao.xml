@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.javamg.modules.rmyhform.dao.TbRmyhKfDao">
+    
+	<sql id="tbRmyhKfColumns">
+		a.id AS "id",
+		a.stand_id AS "standId",
+		a.office_id AS "officeId",
+		a.score AS "score",
+		a.kfreason AS "kfreason",
+		a.rev1 AS "rev1",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.flag_id  AS "flagId"
+		
+	</sql>
+	
+	<sql id="tbRmyhKfJoins">
+		LEFT JOIN sys_office o3 ON o3.id = a.office_id
+	</sql>
+    
+	<select id="get" resultType="TbRmyhKf">
+		SELECT 
+			<include refid="tbRmyhKfColumns"/>
+		FROM tb_rmyh_kf a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="standId != null and standId != ''">
+				AND a.stand_id = #{standId}
+			</if>
+			<if test="officeId != null and officeId != ''">
+				AND a.office_id = #{officeId}
+			</if>
+			<if test="rev1 != null and rev1 != ''">
+				AND a.rev1 = #{rev1}
+			</if>
+			<if test="score != null and score != ''">
+				AND a.score = #{score}
+			</if>
+			<if test="kfreason != null and kfreason != ''">
+				AND a.kfreason = #{kfreason}
+			</if>
+			<if test="flagId != null and flagId != ''">
+				AND a.flag_id = #{flagId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findList" resultType="TbRmyhKf">
+		SELECT 
+			<include refid="tbRmyhKfColumns"/>
+		FROM tb_rmyh_kf a
+		
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="id != null and id != ''">
+				AND a.id = #{id}
+			</if>
+			<if test="standId != null and standId != ''">
+				AND a.stand_id = #{standId}
+			</if>
+			<if test="officeId != null and officeId != ''">
+				AND a.office_id = #{officeId}
+			</if>
+			<if test="score != null and score != ''">
+				AND a.score = #{score}
+			</if>
+			<if test="kfreason != null and kfreason != ''">
+				AND a.kfreason = #{kfreason}
+			</if>
+			<if test="rev1 != null and rev1 != ''">
+				AND a.rev1 = #{rev1}
+			</if>
+			<if test="flagId != null and flagId != ''">
+				AND a.flag_id = #{flagId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TbRmyhKf">
+		SELECT 
+			<include refid="tbRmyhKfColumns"/>
+		FROM tb_rmyh_kf a
+	
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO tb_rmyh_kf(
+			id,
+			stand_id,
+			office_id,
+			score,
+			kfreason,
+			rev1,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			flag_id,
+			del_flag
+		) VALUES (
+			#{id},
+			#{standId},
+			#{officeId},
+			#{score},
+			#{kfreason},
+			#{rev1},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{flagId},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE tb_rmyh_kf SET 	
+			stand_id = #{standId},
+			office_id = #{officeId},
+			score = #{score},
+			kfreason = #{kfreason},
+			rev1 = #{rev1},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			flag_id = #{flagId}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		DELETE FROM  tb_rmyh_kf 
+		WHERE  office_id = #{officeId}  AND rev1 = #{rev1} AND flag_id = #{flagId}
+	</update>
+	
+</mapper>
